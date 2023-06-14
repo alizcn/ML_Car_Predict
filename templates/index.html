@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head xmlns="http://www.w3.org/1999/xhtml">
+    <meta charset="UTF-8">
+    <title>Car Price Predictor</title>
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" type="text/css"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+            integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+            crossorigin="anonymous"></script>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+          integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.0/dist/tf.min.js"></script>
+
+</head>
+<body onload="gizle();">
+<div class="mb-5">
+    <nav class="navbar navbar-expand-lg navbar-light bg-dark">
+        <a class="navbar-brand" style="color:white" href="#">CAR PREDİCT</a>
+    </nav>
+</div>
+<div class="container">
+    <form class="form-horizontal" accept-charset="utf-8" method="post" name="Modelform">
+        <div class="form-group">
+            <label class="control-label col-sm-2">Company</label>
+            <div class="col-sm-10">
+                <select class="selectpicker form-control" id="company" name="company" required="1"
+                        onchange="load_car_models(this.id,'car_models')">
+                    {% for company in companies %}
+                    <option value="{{ company }}">{{ company }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2">Model</label>
+            <div class="col-sm-10">
+                <select class="selectpicker form-control" id="car_models" name="car_models" required="1">
+                </select></div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2">Year</label>
+            <div class="col-sm-10">
+                <select class="selectpicker form-control" id="year" name="year" required="1">
+                    {% for year in years %}
+                    <option value="{{ year }}">{{ year }}</option>
+                    {% endfor %}
+                </select></div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2">Fuel Type</label>
+            <div class="col-sm-10">
+                <select class="selectpicker form-control" id="fuel_type" name="fuel_type" required="1">
+                    {% for type in fuel_types %}
+                    <option value="{{ type }}">{{ type }}</option>
+                    {% endfor %}
+                </select></div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2">Kilometres</label>
+            <div class="col-sm-10">
+                <input class="form-control" id="kilomtr" placeholder="Kilometre" name="kilomtr">
+            </div>
+        </div>
+        <div class="col-md-10 form-group" style="text-align: center">
+            <button class="btn btn-secondary" onclick="send_data()">Predict Price</button>
+        </div>
+    </form>
+    <br>
+    <div class="row" id="dollar">
+        <div class="col-12" style="text-align: center">
+            <h4>Dollar : <span id="dolar">{{dolar_cek}}</span></h4>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-12" style="text-align: center">
+            <h4><span id="prediction"></span></h4>
+        </div>
+    </div>
+</div>
+<script>
+function gizle() {
+  var x = document.getElementById("dollar");
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
+}
+    function load_car_models(company_id,car_model_id)
+    {
+        var company=document.getElementById(company_id);
+        var car_model= document.getElementById(car_model_id);
+        console.log(company.value);
+        car_model.value="";
+        car_model.innerHTML="";
+        {% for company in companies %}
+            if( company.value == "{{ company }}")
+            {
+                {% for model in car_models %}
+                    {% if company in model %}
+
+                        var newOption= document.createElement("option");
+                        newOption.value="{{ model }}";
+                        newOption.innerHTML="{{ model }}";
+                        car_model.options.add(newOption);
+                    {% endif %}
+                {% endfor %}
+            }
+        {% endfor %}
+    }
+
+    function form_handler(event) {
+        event.preventDefault(); // Don't submit the form normally
+    }
+    function send_data()
+    {
+        document.querySelector('form').addEventListener("submit",form_handler);
+
+        var fd=new FormData(document.querySelector('form'));
+
+        var xhr= new XMLHttpRequest({mozSystem: true});
+        xhr.open('POST','/predict',true);
+        document.getElementById('prediction').innerHTML="! Processing in progress";
+        xhr.onreadystatechange = function(){
+            if(xhr.readyState == XMLHttpRequest.DONE){
+                document.getElementById('prediction').innerHTML="Prediction: $"+xhr.responseText*parseFloat(document.getElementById("dolar").innerHTML);
+
+            }
+        };
+
+        xhr.onload= function(){};
+
+        xhr.send(fd);
+    }
+
+
+</script>
+
+
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+        integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+        crossorigin="anonymous"></script>
+</body>
+</html>
