@@ -3,8 +3,6 @@ from flask_cors import CORS, cross_origin
 import pickle
 import pandas as pd
 import numpy as np
-from bs4 import BeautifulSoup
-import requests
 
 app = Flask(__name__)
 cors = CORS(app)
