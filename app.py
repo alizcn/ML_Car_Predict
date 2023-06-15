@@ -11,11 +11,6 @@ cors = CORS(app)
 model = pickle.load(open('LRM.pkl', 'rb'))
 car = pd.read_csv('Clean Car.csv')
 
-url = "https://wise.com/tr/currency-converter/inr-to-usd-rate"
-r = requests.get(url)
-soup = BeautifulSoup(r.content, "html.parser")
-gelen_veri = soup.findAll('span',{"class":"text-success"})
-dolar_cek=gelen_veri[0].text
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -25,8 +20,7 @@ def index():
     fuel_type = car['fuel_type'].unique()
     companies.insert(0, 'Select Company')
 
-    return render_template('index.html', companies=companies, car_models=car_models, years=year, fuel_types=fuel_type,
-                           dolar_cek=dolar_cek)
+    return render_template('index.html', companies=companies, car_models=car_models, years=year, fuel_types=fuel_type)
 
 
 @app.route('/predict', methods=['POST'])
