@@ -36,5 +36,7 @@ def predict():
     return str(np.ceil(prediction[0]).astype(float))
 
 
-if __name__ == '__main__':
-    app.run()
+if __name__ == "__main__":
+    app.run(port=8000, debug=True)
+
+    
